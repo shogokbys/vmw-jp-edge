@@ -13,7 +13,7 @@ spec:
   controllerName: vmoperator.vmware.com/keswickworker
   hardware:
     cpus: 4
-    memory: 8Gi
+    memory: 6Gi
 ---
 apiVersion: v1
 kind: Namespace
