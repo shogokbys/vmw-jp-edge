@@ -51,9 +51,6 @@ data:
               roles:
                 - detect
                 - rtmp
-        width: 1280
-        height: 720
-        fps: 5
 
 ---
 apiVersion: apps/v1
