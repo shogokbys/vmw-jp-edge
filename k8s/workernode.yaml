@@ -1,0 +1,26 @@
+apiVersion: vmoperator.vmware.com/v1alpha1
+kind: VirtualMachineClass
+metadata:
+  name: best-effort-veco-small
+spec:
+  controllerName: vmoperator.vmware.com/keswickworker
+  hardware:
+    cpus: 4
+    memory: 6Gi
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: veco-system
+---
+apiVersion: vmoperator.vmware.com/v1alpha1
+kind: VirtualMachine
+metadata:
+  name: veco-worker
+  namespace: veco-system
+spec:
+  className: best-effort-veco-small
+  imageName: keswick-wrkr.ova
+  powerState: poweredOff
+  vmMetadata:
+    transport: CloudInit
