@@ -51,22 +51,20 @@ data:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: frigate2
+  name: frigate
   namespace: frigate
-  labels:
-    app.kubernetes.io/version: "0.0.3"
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: frigate2
+      app: frigate
   template:
     metadata:
       labels:
-        app: frigate2
+        app: frigate
     spec:
       containers:
-        - name: frigate2
+        - name: frigate
           image: ghcr.io/blakeblackshear/frigate:stable
           ports:
             - name: http
@@ -127,4 +125,4 @@ spec:
     targetPort: 5000
     nodePort: 30000
   selector:
-    app: frigate2
+    app: frigate
