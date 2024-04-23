@@ -53,6 +53,8 @@ kind: Deployment
 metadata:
   name: frigate2
   namespace: frigate
+  labels:
+    app.kubernetes.io/version: "0.0.3"
 spec:
   replicas: 1
   selector:
