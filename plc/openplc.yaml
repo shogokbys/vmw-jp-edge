@@ -1,0 +1,129 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: plc
+  labels:
+    name: plc
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: openplc-st-cm
+  namespace: plc
+  labels:
+    app.kubernetes.io/name: openplc-st-cm
+data:
+  script.st: |
+    PROGRAM test1
+      VAR
+        sensor AT %IX100.0 : BOOL;
+        startbutton AT %IX100.1 : BOOL;
+        conveyor AT %QX100.0 : BOOL;
+      END_VAR
+    
+      conveyor := startbutton;
+    END_PROGRAM
+    
+    CONFIGURATION Config0
+    
+      RESOURCE Res0 ON PLC
+        TASK task0(INTERVAL := T#20ms,PRIORITY := 0);
+        PROGRAM instance0 WITH task0 : test1;
+      END_RESOURCE
+    END_CONFIGURATION
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: openplc-mbconfig-cm
+  namespace: plc
+  labels:
+    app.kubernetes.io/name: openplc-mbconfig-cm
+data:
+  mbconfig.cfg: |
+    Num_Devices = "1"
+    Polling_Period = "100"
+    Timeout = "1000"
+    # ------------
+    #   DEVICE 0
+    # ------------
+    device0.name = "FACTORYIO"
+    device0.slave_id = "1"
+    device0.protocol = "TCP"
+    device0.address = "192.168.50.222"
+    device0.IP_Port = "502"
+    device0.RTU_Baud_Rate = "115200"
+    device0.RTU_Parity = "None"
+    device0.RTU_Data_Bits = "8"
+    device0.RTU_Stop_Bits = "1"
+    device0.RTU_TX_Pause = "0"
+    
+    device0.Discrete_Inputs_Start = "0"
+    device0.Discrete_Inputs_Size = "2"
+    device0.Coils_Start = "0"
+    device0.Coils_Size = "1"
+    device0.Input_Registers_Start = "0"
+    device0.Input_Registers_Size = "0"
+    device0.Holding_Registers_Read_Start = "0"
+    device0.Holding_Registers_Read_Size = "0"
+    device0.Holding_Registers_Start = "0"
+    device0.Holding_Registers_Size = "0"
+
+--- 
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: openplc
+  namespace: plc
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: openplc
+  template:
+    metadata:
+      labels:
+        app: openplc
+        app.kubernetes.io/version: "3.0.0"
+    spec:
+      containers:
+        - name: openplc
+          image: shogokobayashi/openplc:latest
+          ports:
+            - name: modbus
+              containerPort: 502
+              protocol: TCP
+            - name: webui
+              containerPort: 8080
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /home/openplc/OpenPLC_v3/webserver/st_files/script.st
+              subPath: script.st
+              name: st-file
+            - mountPath: /home/openplc/OpenPLC_v3/webserver/mbconfig.cfg
+              subPath: mbconfig.cfg
+              name: mbconfig-file
+      volumes:
+        - name: st-file
+          configMap:
+            name: openplc-st-cm
+        - name: mbconfig-file
+          configMap:
+            name: openplc-mbconfig-cm
+          
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: openplc-webui
+  namespace: plc
+spec:
+  type: NodePort
+  ports:
+  - port: 8080
+    targetPort: 8080
+    nodePort: 30080
+  selector:
+    app: openplc
