@@ -38,6 +38,12 @@ data:
       cpu1:
         type: cpu
 
+    objects:
+      track:
+        - person
+        - car
+        - bicycle
+
     cameras:
       front_road:
         ffmpeg:
@@ -62,7 +68,7 @@ spec:
     metadata:
       labels:
         app: frigate
-        app.kubernetes.io/version: "0.0.4"
+        app.kubernetes.io/version: "0.0.5"
     spec:
       containers:
         - name: frigate
