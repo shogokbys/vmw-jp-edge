@@ -48,7 +48,7 @@ data:
       front_road:
         ffmpeg:
           inputs:
-            - path: rtsp://vmware:VMware1!@192.168.50.209:554/stream2
+            - path: rtsp://vmware:VMware1!@192.168.50.209:554/stream1
               roles:
                 - detect
                 - rtmp
@@ -68,7 +68,7 @@ spec:
     metadata:
       labels:
         app: frigate
-        app.kubernetes.io/version: "0.0.5"
+        app.kubernetes.io/version: "0.0.6"
     spec:
       containers:
         - name: frigate
